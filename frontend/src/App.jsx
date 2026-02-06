@@ -30,7 +30,7 @@ const supernovaTheme = createTheme({
   shape: { borderRadius: 24 },
 });
 
-const API_URL = 'http://localhost:5000/clientes';
+const API_URL = 'https://climba.onrender.com/clientes';
 
 function App() {
   const [clientes, setClientes] = useState([]);
