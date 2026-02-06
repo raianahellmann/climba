@@ -262,7 +262,6 @@ function App() {
               <Button onClick={confirmarExclusao} variant="contained" sx={{ bgcolor: '#F43F5E', color: '#FFF' }}>EXCLUIR</Button>
             </DialogActions>
           </Dialog>
-
         </Box>
       </LocalizationProvider>
     </ThemeProvider>
