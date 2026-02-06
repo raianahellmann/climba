@@ -2,3 +2,8 @@ node_modules/
 .vite/
 dist/
 .env
+
+DB_HOST=mysql-climba-raianahellmann-2037.d.aivencloud.com
+DB_PORT=10156
+DB_USER=avnadmin
+DB_PASS=AVNS_6WWgF80xibfL4yj5YIva

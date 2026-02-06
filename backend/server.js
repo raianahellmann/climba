@@ -9,14 +9,12 @@ app.use(express.json());
 
 // --- configuração db
 const db = mysql.createPool({
-  host: "mysql-climba-raianahellmann-2037.d.aivencloud.com",
-  port: 10156,
-  user: "avnadmin",
-  password: "AVNS_6WWgF80xibfL4yj5YIva",
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
   database: "defaultdb",
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
 db.getConnection((err, connection) => {
