@@ -259,7 +259,7 @@ function App() {
             <DialogContent><Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>Esta ação não pode ser desfeita.</Typography></DialogContent>
             <DialogActions sx={{ justifyContent: 'center', pb: 3, gap: 2 }}>
               <Button onClick={() => setDeleteDialogOpen(false)}>NÃO</Button>
-              <Button onClick={confirmarExclusao} variant="contained" sx={{ bgcolor: '#F43F5E', color: '#FFF' }}>DELETAR</Button>
+              <Button onClick={confirmarExclusao} variant="contained" sx={{ bgcolor: '#F43F5E', color: '#FFF' }}>EXCLUIR</Button>
             </DialogActions>
           </Dialog>
 
