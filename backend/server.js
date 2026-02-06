@@ -7,24 +7,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// conf db
+// --- configuração db
 const db = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || '@2HT0d1FXn',
-    database: process.env.DB_NAME || 'climba_teste',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+  host: "mysql-climba-raianahellmann-2037.d.aivencloud.com",
+  port: 10156,
+  user: "avnadmin",
+  password: "AVNS_6WWgF80xibfL4yj5YIva",
+  database: "defaultdb",
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 db.getConnection((err, connection) => {
-    if (err) {
-        console.error('❌ ERRO CRÍTICO NO BANCO:', err.message);
-        return;
-    }
-    console.log('✅ Conexão estabelecida! O banco está pronto.');
-    connection.release();
+  if (err) {
+    console.error('❌ ERRO CRÍTICO NO BANCO:', err.message);
+    return;
+  }
+  console.log('✅ Conexão estabelecida! O banco no Aiven está pronto.');
+  connection.release();
 });
 
 // --- cadastrar ---
@@ -88,6 +89,7 @@ app.put('/clientes/:id', (req, res) => {
         res.json({ message: "Atualizado!" });
     });
 });
+
 
 const PORT = 5000;
 app.listen(PORT, () => {
