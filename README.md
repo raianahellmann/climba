@@ -48,6 +48,7 @@ Para entregar o teste dentro do prazo, organizei o fluxo começando pela configu
 1. **Clone o repositório:**
 ```bash
 git clone [https://github.com/raianahellmann/climba.git](https://github.com/raianahellmann/climba.git)
+
 Configuração do Backend:
 
 Bash
