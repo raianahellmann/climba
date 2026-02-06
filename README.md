@@ -1,6 +1,6 @@
 # ClimbaCore - CRUD de Clientes
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 ### Front-end
 - **React (Vite)**: Framework principal pela performance e agilidade no desenvolvimento.
@@ -13,9 +13,8 @@
 - **Express**: Framework para criação de rotas e middleware.
 - **MySQL**: Banco de dados relacional para persistência dos dados.
 
----
 
-## 📋 Funcionalidades e Regras de Negócio
+## Funcionalidades e Regras de Negócio
 
 - **CRUD Completo**: Criação, Listagem, Edição e Exclusão de clientes.
 - **Busca Dinâmica**: Filtro por nome ou e-mail conforme o usuário digita.
@@ -26,15 +25,8 @@
   - Nome e Profissão como campos obrigatórios.
 - **Interface Dark Mode**: Design personalizado focado em usabilidade e estética moderna.
 
----
 
-## 🛠️ Como rodar o projeto
-
-### 1. Requisitos
-- Node.js instalado.
-- MySQL Server rodando.
-
-### 2. Configuração do Banco de Dados
+## Como rodar o projeto
 Crie um banco de dados chamado `climba` (ou o nome que você definiu) e execute a seguinte query:
 
 ```sql
