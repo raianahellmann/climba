@@ -19,10 +19,10 @@ const db = mysql.createPool({
 
 db.getConnection((err, connection) => {
   if (err) {
-    console.error('❌ ERRO CRÍTICO NO BANCO:', err.message);
+    console.error('ERRO CRÍTICO NO BANCO:', err.message);
     return;
   }
-  console.log('✅ Conexão estabelecida! O banco no Aiven está pronto.');
+  console.log('Conexão estabelecida!');
   connection.release();
 });
 
@@ -30,13 +30,13 @@ db.getConnection((err, connection) => {
 app.post('/clientes', (req, res) => {
     const { nome, email, data_nascimento, profissao, observacoes } = req.body;
     
-    console.log("📥 Recebendo cadastro:", { nome, email });
+    console.log("Recebendo cadastro:", { nome, email });
 
     const sql = "INSERT INTO clientes (nome, email, data_nascimento, profissao, observacoes) VALUES (?, ?, ?, ?, ?)";
     
     db.query(sql, [nome, email, data_nascimento, profissao, observacoes], (err, result) => {
         if (err) {
-            console.error("❌ Erro ao Salvar:", err.message);
+            console.error("Erro ao Salvar:", err.message);
             if (err.code === 'ER_DUP_ENTRY') {
                 return res.status(400).json({ error: "Este e-mail já está cadastrado." });
             }
@@ -54,7 +54,7 @@ app.get('/clientes', (req, res) => {
     
     db.query(sql, [searchTerm, searchTerm], (err, results) => {
         if (err) {
-            console.error("❌ Erro ao Listar:", err.message);
+            console.error("Erro ao Listar:", err.message);
             return res.status(500).json({ error: err.message });
         }
         res.json(results);
@@ -66,7 +66,7 @@ app.delete('/clientes/:id', (req, res) => {
     const { id } = req.params;
     db.query("DELETE FROM clientes WHERE id = ?", [id], (err) => {
         if (err) {
-            console.error("❌ Erro ao Excluir:", err.message);
+            console.error("Erro ao Excluir:", err.message);
             return res.status(500).json({ error: err.message });
         }
         res.json({ message: "Removido!" });
@@ -81,7 +81,7 @@ app.put('/clientes/:id', (req, res) => {
     
     db.query(sql, [nome, email, data_nascimento, profissao, observacoes, id], (err) => {
         if (err) {
-            console.error("❌ Erro ao Editar:", err.message);
+            console.error("Erro ao Editar:", err.message);
             return res.status(500).json({ error: err.message });
         }
         res.json({ message: "Atualizado!" });
@@ -91,6 +91,6 @@ app.put('/clientes/:id', (req, res) => {
 
 const PORT = 5000;
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-    console.log(`🔗 API disponível em http://localhost:${PORT}/clientes`);
+    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`API disponível em http://localhost:${PORT}/clientes`);
 });

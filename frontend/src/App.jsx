@@ -6,7 +6,7 @@ import {
   CssBaseline, Avatar, Divider, Chip
 } from '@mui/material';
 import { 
-  Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, 
+  Edit as EditIcon, Delete as DeleteIcon, 
   Search as SearchIcon, AlternateEmail as EmailIcon,
   Fingerprint as IdIcon
 } from '@mui/icons-material';
@@ -14,20 +14,48 @@ import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
 
-// Tema Supernova - Dark Mode Profissional
-const supernovaTheme = createTheme({
+const climbaTheme = createTheme({
   palette: {
     mode: 'dark',
-    primary: { main: '#6366F1' }, 
-    background: { default: '#050B18', paper: 'rgba(255, 255, 255, 0.03)' },
-    text: { primary: '#FFFFFF', secondary: '#94A3B8' },
+    primary: { main: '#76DA30' }, 
+    background: { default: '#1C1F26', paper: '#2D323E' },
+    text: { primary: '#FFFFFF', secondary: '#9BA3AF' },
   },
   typography: {
     fontFamily: '"Plus Jakarta Sans", sans-serif',
-    h4: { fontWeight: 900, letterSpacing: '-0.06em' },
+    h4: { fontWeight: 800 },
   },
-  shape: { borderRadius: 24 },
+  shape: { borderRadius: 12 },
+  components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+          backgroundColor: '#2D323E',
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        containedPrimary: {
+          color: '#1C1F26',
+          fontWeight: 700,
+          '&:hover': { backgroundColor: '#62B828' },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#2D323E', 
+          paddingLeft: '4px',
+          paddingRight: '4px',
+        },
+      },
+    },
+  },
 });
 
 const API_URL = 'https://climba.onrender.com/clientes';
@@ -36,6 +64,7 @@ function App() {
   const [clientes, setClientes] = useState([]);
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false); 
   const [clienteParaExcluir, setClienteParaExcluir] = useState(null);
   const [search, setSearch] = useState('');
   const [errors, setErrors] = useState({}); 
@@ -50,7 +79,11 @@ function App() {
 
   useEffect(() => { fetchClientes(); }, [search]);
 
-  // Validação de campos
+  const tratarDataBanco = (data) => {
+    if (!data) return null;
+    return dayjs(data.substring(0, 10));
+  };
+
   const validate = () => {
     let tempErrors = {};
     if (!formData.nome?.trim()) tempErrors.nome = "O nome é obrigatório.";
@@ -70,8 +103,13 @@ function App() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validate()) return;
+  const handlePreSubmit = () => {
+    if (validate()) {
+      setSaveDialogOpen(true);
+    }
+  };
+
+  const executeSubmit = async () => {
     try {
       const payload = {
         nome: formData.nome.trim(),
@@ -86,10 +124,11 @@ function App() {
       } else {
         await axios.post(API_URL, payload);
       }
+      setSaveDialogOpen(false);
       handleClose();
       fetchClientes();
     } catch (err) { 
-      console.error("Erro no Servidor:", err.response?.data);
+      setSaveDialogOpen(false);
       if (err.response?.status === 400) {
         setErrors({ ...errors, email: "E-mail já cadastrado ou dados inválidos." });
       } else {
@@ -104,63 +143,48 @@ function App() {
     setErrors({});
   };
 
-  // Funções para Exclusão Customizada
-  const triggerDelete = (id) => {
-    setClienteParaExcluir(id);
-    setDeleteDialogOpen(true);
-  };
-
   const confirmarExclusao = async () => {
     try {
       await axios.delete(`${API_URL}/${clienteParaExcluir}`);
       setDeleteDialogOpen(false);
       fetchClientes();
-    } catch (err) {
-      console.error("Erro ao excluir:", err);
-    }
+    } catch (err) { console.error("Erro ao excluir:", err); }
   };
 
   return (
-    <ThemeProvider theme={supernovaTheme}>
+    <ThemeProvider theme={climbaTheme}>
       <CssBaseline />
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Box sx={{ minHeight: '100vh', py: 8, background: '#050B18' }}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+        <Box sx={{ minHeight: '100vh', py: 8, background: '#1C1F26' }}>
           <Container maxWidth="sm">
             
-            <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
-              Climba<span style={{ color: '#6366F1' }}>Core</span>
+            <Typography variant="h4" sx={{ mb: 4, textAlign: 'center', color: '#FFF' }}>
+              Climba<span style={{ color: '#76DA30' }}>Core</span>
             </Typography>
 
-            {/* Barra de Busca */}
-            <Paper elevation={0} sx={{ p: '6px 20px', mb: 5, display: 'flex', alignItems: 'center', bgcolor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px' }}>
-              <SearchIcon sx={{ color: 'text.secondary', mr: 2 }} />
+            <Paper elevation={0} sx={{ p: '6px 20px', mb: 5, display: 'flex', alignItems: 'center', bgcolor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px' }}>
+              <SearchIcon sx={{ color: 'primary.main', mr: 2 }} />
               <TextField 
-                fullWidth 
-                variant="standard" 
-                placeholder="Filtrar por nome ou e-mail..." 
+                fullWidth variant="standard" placeholder="Pesquisar..." 
                 InputProps={{ disableUnderline: true }} 
                 onChange={(e) => setSearch(e.target.value)} 
               />
             </Paper>
 
-            {/* Lista de Clientes */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {clientes.map((c) => (
-                <Paper key={c.id} sx={{ 
-                  p: 3, borderRadius: '28px', border: '1px solid rgba(255,255,255,0.05)',
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)'
-                }}>
+                <Paper key={c.id} sx={{ p: 3, borderRadius: '12px', bgcolor: '#2D323E' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2.5 }}>
-                    <Avatar sx={{ bgcolor: 'primary.main', fontWeight: 900 }}>{c.nome?.charAt(0)}</Avatar>
+                    <Avatar sx={{ bgcolor: 'primary.main', color: '#1C1F26', fontWeight: 'bold' }}>{c.nome?.charAt(0)}</Avatar>
                     <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 800, wordBreak: 'break-word', lineHeight: 1.2, mb: 0.5 }}>{c.nome}</Typography>
-                      <Chip label={c.profissao} size="small" sx={{ height: 20, fontSize: '10px', fontWeight: 900, bgcolor: 'rgba(99, 102, 241, 0.1)', color: 'primary.main' }} />
+                      <Typography variant="h6" sx={{ fontWeight: 700 }}>{c.nome}</Typography>
+                      <Chip label={c.profissao} size="small" sx={{ bgcolor: 'rgba(118, 218, 48, 0.1)', color: 'primary.main', fontWeight: 600 }} />
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                      <IconButton size="small" sx={{ color: 'primary.main' }} onClick={() => { setFormData({...c, data_nascimento: dayjs(c.data_nascimento)}); setOpen(true); }}>
+                      <IconButton size="small" sx={{ color: 'primary.main' }} onClick={() => { setFormData({...c, data_nascimento: tratarDataBanco(c.data_nascimento)}); setOpen(true); }}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" sx={{ color: '#F43F5E' }} onClick={() => triggerDelete(c.id)}>
+                      <IconButton size="small" sx={{ color: '#F43F5E' }} onClick={() => { setClienteParaExcluir(c.id); setDeleteDialogOpen(true); }}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Box>
@@ -173,84 +197,69 @@ function App() {
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <IdIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                      <Typography variant="caption">{dayjs(c.data_nascimento).format('DD/MM/YYYY')}</Typography>
+                      <Typography variant="caption">{tratarDataBanco(c.data_nascimento)?.format('DD/MM/YYYY')}</Typography>
                     </Box>
                   </Box>
                 </Paper>
               ))}
             </Box>
 
-            <Button 
-              fullWidth 
-              variant="contained" 
-              startIcon={<AddIcon />} 
-              onClick={() => setOpen(true)} 
-              sx={{ mt: 6, py: 2, borderRadius: '20px', fontWeight: 700 }}
-            >
+            <Button fullWidth variant="contained" onClick={() => setOpen(true)} sx={{ mt: 6, py: 1.8 }}>
               ADICIONAR CLIENTE
             </Button>
           </Container>
 
-          {/* MODAL DE CADASTRO / EDIÇÃO */}
-          <Dialog 
-            open={open} 
-            onClose={handleClose} 
-            fullWidth 
-            maxWidth="xs"
-            disableRestoreFocus
-            disableEnforceFocus
-            PaperProps={{ sx: { background: '#0F172A', borderRadius: '32px', backgroundImage: 'none' } }}
-          >
-            <DialogTitle sx={{ textAlign: 'center', fontWeight: 900, pt: 4, color: '#FFF' }}>Perfil do Cliente</DialogTitle>
+          <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
+            <DialogTitle sx={{ textAlign: 'center', fontWeight: 800, pt: 4 }}>Perfil do Cliente</DialogTitle>
             <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 2 }}>
               <TextField label="Nome Completo *" fullWidth error={!!errors.nome} helperText={errors.nome} value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} sx={{ mt: 1 }} />
               <TextField label="E-mail *" fullWidth error={!!errors.email} helperText={errors.email} value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <DatePicker 
-                  label="Nascimento *"
-                  value={formData.data_nascimento} 
-                  onChange={(v) => setFormData({...formData, data_nascimento: v})}
-                  slotProps={{ textField: { fullWidth: true, error: !!errors.data_nascimento, helperText: errors.data_nascimento } }}
-                />
-                <FormControl fullWidth error={!!errors.profissao}>
-                  <InputLabel id="prof-label">Profissão *</InputLabel>
-                  <Select labelId="prof-label" label="Profissão *" value={formData.profissao} onChange={(e) => setFormData({...formData, profissao: e.target.value})}>
-                    <MenuItem value="Programador">Programador</MenuItem>
-                    <MenuItem value="Consultor de Vendas">Consultor de Vendas</MenuItem>
-                    <MenuItem value="SDR">SDR</MenuItem>
-                    <MenuItem value="Suporte ao Cliente">Suporte ao Cliente</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
+              
+              <DatePicker 
+                label="Nascimento *"
+                value={formData.data_nascimento} 
+                onChange={(v) => setFormData({...formData, data_nascimento: v})}
+                format="DD/MM/YYYY"
+                slotProps={{ textField: { fullWidth: true, error: !!errors.data_nascimento, helperText: errors.data_nascimento } }}
+              />
+
+              <FormControl fullWidth error={!!errors.profissao}>
+                <InputLabel id="prof-label">Profissão *</InputLabel>
+                <Select labelId="prof-label" label="Profissão *" value={formData.profissao} onChange={(e) => setFormData({...formData, profissao: e.target.value})}>
+                  <MenuItem value="Programador">Programador</MenuItem>
+                  <MenuItem value="Consultor de Vendas">Consultor de Vendas</MenuItem>
+                  <MenuItem value="SDR">SDR</MenuItem>
+                  <MenuItem value="Suporte ao Cliente">Suporte ao Cliente</MenuItem>
+                </Select>
+              </FormControl>
+
               <TextField label="Observações" multiline rows={3} fullWidth value={formData.observacoes} onChange={(e) => setFormData({...formData, observacoes: e.target.value})} />
             </DialogContent>
             <DialogActions sx={{ p: 4, justifyContent: 'center', gap: 2 }}>
-              <Button onClick={handleClose} sx={{ color: '#94A3B8' }}>CANCELAR</Button>
-              <Button onClick={handleSubmit} variant="contained" sx={{ px: 5, py: 1.5, borderRadius: '50px', fontWeight: 700, bgcolor: '#6366F1' }}>SALVAR</Button>
+              <Button onClick={handleClose} sx={{ color: 'primary.main' }}>CANCELAR</Button>
+              <Button onClick={handlePreSubmit} variant="contained" sx={{ px: 4, borderRadius: '50px' }}>SALVAR</Button>
             </DialogActions>
           </Dialog>
 
-          {/* NOVO MODAL DE CONFIRMAÇÃO DE EXCLUSÃO (ADEUS LOCALHOST DIZ) */}
-          <Dialog 
-            open={deleteDialogOpen} 
-            onClose={() => setDeleteDialogOpen(false)}
-            PaperProps={{ sx: { background: '#0F172A', borderRadius: '24px', p: 1 } }}
-          >
-            <DialogTitle sx={{ fontWeight: 800, textAlign: 'center' }}>Confirmar Exclusão</DialogTitle>
+          <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)}>
+            <DialogTitle sx={{ textAlign: 'center', fontWeight: 800 }}>Confirmar Dados</DialogTitle>
             <DialogContent>
-              <Typography sx={{ color: 'text.secondary', textAlign: 'center' }}>
-                Deseja remover este cliente? Esta ação não pode ser desfeita.
+              <Typography variant="body1" sx={{ textAlign: 'center' }}>
+                Deseja salvar as informações deste cliente?
               </Typography>
             </DialogContent>
-            <DialogActions sx={{ justifyContent: 'center', gap: 2, pb: 3 }}>
-              <Button onClick={() => setDeleteDialogOpen(false)} sx={{ color: '#94A3B8' }}>CANCELAR</Button>
-              <Button 
-                onClick={confirmarExclusao} 
-                variant="contained" 
-                sx={{ bgcolor: '#F43F5E', '&:hover': { bgcolor: '#E11D48' }, borderRadius: '50px', px: 3 }}
-              >
-                EXCLUIR
-              </Button>
+            <DialogActions sx={{ justifyContent: 'center', pb: 3, gap: 2 }}>
+              <Button onClick={() => setSaveDialogOpen(false)}>REVISAR</Button>
+              <Button onClick={executeSubmit} variant="contained">SALVAR</Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+            <DialogTitle sx={{ textAlign: 'center' }}>Excluir Cliente?</DialogTitle>
+            <DialogContent><Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>Esta ação não pode ser desfeita.</Typography></DialogContent>
+            <DialogActions sx={{ justifyContent: 'center', pb: 3, gap: 2 }}>
+              <Button onClick={() => setDeleteDialogOpen(false)}>NÃO</Button>
+              <Button onClick={confirmarExclusao} variant="contained" sx={{ bgcolor: '#F43F5E', color: '#FFF' }}>SIM, EXCLUIR</Button>
             </DialogActions>
           </Dialog>
 
