@@ -50,14 +50,12 @@ Para entregar o teste dentro do prazo, organizei o fluxo começando pela configu
    git clone [https://github.com/raianahellmann/climba.git](https://github.com/raianahellmann/climba.git)
 
 2. **Configuração do Backend:**
-   ```bash
 cd backend
 npm install
 # Configure o arquivo .env com as credenciais do banco
 node server.js
 
 3. **Configuração do Frontend:**
-   ```bash
 cd ../frontend
 npm install
 npm run dev
